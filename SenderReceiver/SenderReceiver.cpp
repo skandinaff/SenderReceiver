@@ -15,10 +15,10 @@ class Sensor {
 public:
 	string name;
 
-	void setName(string _name) {
+	void set_name(string _name) {
 		name = _name;
 	}
-	string getName(void) {
+	string get_name(void) {
 		return name;
 	}
 	double measure(void) {
@@ -28,14 +28,29 @@ public:
 
 class Receiver {
 public:
+	string sensor_name;
 	string name;
-	int numberOfMsgs = 0;
-	Receiver(string _sensor_name) {
-		name == _sensor_name;
-	}
+	int number_of_msgs = 0;
+	double all_messages = 0;
 
 	void incrementN(void) {
-		numberOfMsgs += 1;
+		number_of_msgs += 1;
+	}
+	void add_messages(int message){
+		all_messages += message;
+	}
+	double get_average(void) {
+		return all_messages / number_of_msgs;
+	}
+
+	string connected_to_what(void) {
+		return sensor_name;
+	}
+	void set_name(string _name) {
+		name = _name;
+	}
+	string get_name(void) {
+		return name;
 	}
 
 };
@@ -50,36 +65,53 @@ int main()
 
 	Sensor sensor1;
 	Sensor sensor2;
-	sensor1.setName("Sensor 1");
-	sensor1.setName("Sensor 2");
+	sensor1.set_name("Sensor 1");
+	sensor2.set_name("Sensor 2");
 
-	Receiver receiver1("Sensor 1");
-	Receiver receiver2("Sensor 2");
+	Receiver receiver1;
+	receiver1.name = "Receiver 1";
+	receiver1.sensor_name = sensor1.get_name();
+
+	Receiver receiver2;
+	receiver2.name = "Receiver 2";
+	receiver2.sensor_name = sensor2.get_name();
 
 	SHORT key = 0;
-
 
 	double data;
 	
 		while (key == 0) {
+			if(rand()%2==0) data = sensor1.measure();
+			else data = NULL;
+			if (data != NULL) {
+				cout << "Sensor 1 send: ";
+				cout << data << endl;
+				receiver1.incrementN();
+				receiver1.add_messages(data);
+			}
+			data = sensor2.measure();
+			if (data != NULL) {
+				cout << "Sensor 2 send: ";
+				cout << data << endl;
+				receiver2.incrementN();
+				receiver2.add_messages(data);
+			}
+			key = GetKeyState('A');
+			cout << "Press A to stop reception" << endl;
+		Sleep(10);
 
-		cout << "Sensor 1 send: ";
-		data = sensor1.measure();
-		cout << data << endl;
-		if (data != NULL) receiver1.incrementN();
+		}
 
-		cout << "Sensor 2 send: ";
-		data = sensor2.measure();
-		cout << data << endl;
-		if (data != NULL) receiver2.incrementN();
-		key = GetKeyState('A');
-		Sleep(100);
+	cout << "Reception stopped" << endl;
 
-	}
+	cout << receiver1.get_name() << " got: " << receiver1.number_of_msgs << " Messages ";
+	cout << " from " << receiver1.connected_to_what() << endl;
+	cout << "Average of " << receiver1.connected_to_what() << " is: " << receiver1.get_average() << endl;
 
-	cout << "Programm stopped" << endl;
-	cout << "Receiver 1 got: " << receiver1.numberOfMsgs << "Messages" << endl;
-	cout << "Receiver 2 got: " << receiver2.numberOfMsgs << "Messages" << endl;
+	cout << receiver2.get_name() << " got: " << receiver2.number_of_msgs << " Messages ";
+	cout << " from " << receiver2.connected_to_what() << endl;
+	cout << "Average of " << receiver2.connected_to_what() << " is: " << receiver2.get_average() << endl;
+
 	system("pause");
 	return 0;
 
