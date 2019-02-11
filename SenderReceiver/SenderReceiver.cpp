@@ -6,7 +6,6 @@
 #include <string>
 #include <cstdlib>
 #include <ctime>
-#include <csignal>
 #include <windows.h>
 
 using namespace std;
@@ -36,7 +35,7 @@ public:
 	void incrementN(void) {
 		number_of_msgs += 1;
 	}
-	void add_messages(int message){
+	void add_messages(double message){
 		all_messages += message;
 	}
 	double get_average(void) {
@@ -54,6 +53,19 @@ public:
 	}
 
 };
+
+void get_sensor_data(double* data, Sensor& sensor, Receiver& receiver, int randomizer) {
+	if (rand() % randomizer == 0) {
+		*data = sensor.measure();
+	}
+	else data = NULL;
+	if (data != NULL) {
+		cout << "Sensor 1 send: ";
+		cout << *data << endl;
+		receiver.incrementN();
+		receiver.add_messages(*data);
+	}
+}
 
 
 
@@ -78,24 +90,13 @@ int main()
 
 	SHORT key = 0;
 
-	double data;
+	double data = 0;
+	double* pDat = &data;
 	
 		while (key == 0) {
-			if(rand()%2==0) data = sensor1.measure();
-			else data = NULL;
-			if (data != NULL) {
-				cout << "Sensor 1 send: ";
-				cout << data << endl;
-				receiver1.incrementN();
-				receiver1.add_messages(data);
-			}
-			data = sensor2.measure();
-			if (data != NULL) {
-				cout << "Sensor 2 send: ";
-				cout << data << endl;
-				receiver2.incrementN();
-				receiver2.add_messages(data);
-			}
+			get_sensor_data(pDat, sensor1, receiver1, 1);
+			get_sensor_data(pDat, sensor2, receiver2, 2);
+
 			key = GetKeyState('A');
 			cout << "Press A to stop reception" << endl;
 		Sleep(10);
