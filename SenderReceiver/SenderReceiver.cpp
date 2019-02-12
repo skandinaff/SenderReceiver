@@ -5,6 +5,7 @@
 #include <ctime>
 #include <windows.h>
 #include <vector>
+#include <climits>
 
 using namespace std;
 
@@ -71,27 +72,28 @@ int main()
 
 	vector<Sensor> sensors;
 	vector<Receiver> receivers;
-	int number_of_connections;
-
+	int num_of_conn = 0;
 
 	cout << "Please enter number of sensors: " << endl;
-	cin >> number_of_connections;
-	while(number_of_connections > 99) {
+	cin >> num_of_conn;
+	
+	while (num_of_conn > 99 || num_of_conn <= 0) {
 		cout << "Maximum number of sensors is 99. Try again." << endl;
-		cin >> number_of_connections;
+		cin.clear();
+		cin >> num_of_conn;
 	}
 
-	sensors.resize(number_of_connections);
-	receivers.resize(number_of_connections);
+	sensors.resize(num_of_conn);
+	receivers.resize(num_of_conn);
 	
-	for (int i = 0; i < number_of_connections; i++)
+	for (int i = 0; i < num_of_conn; i++)
 	{
 		string sensor_name = "Sensor ";
 		sensor_name += to_string(i);
 		sensors[i].set_name(sensor_name);
 	}
 
-	for (int i = 0; i < number_of_connections; i++)
+	for (int i = 0; i < num_of_conn; i++)
 	{
 		string receiver_name = "Receiver ";
 		receiver_name += to_string(i);
@@ -111,7 +113,7 @@ int main()
 	key = 0;
 
 		while (key == 0) {
-			for (int i = 0; i < number_of_connections; i++) {
+			for (int i = 0; i < num_of_conn; i++) {
 				get_sensor_data(pDat, sensors[i], receivers[i]);
 			}
 			key = GetKeyState('S');
@@ -119,7 +121,7 @@ int main()
 		}
 
 	cout << "Reception stopped\n\r" << endl;
-	for (int i = 0; i < number_of_connections; i++) {
+	for (int i = 0; i < num_of_conn; i++) {
 		cout << receivers[i].get_name() << " got: " << receivers[i].number_of_msgs << " Messages ";
 		cout << " from " << receivers[i].connected_to_what() << endl;
 		cout << "Average of " << receivers[i].connected_to_what() << " is: " << receivers[i].get_average() << "\n\r" << endl;
