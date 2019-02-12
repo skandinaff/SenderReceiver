@@ -1,12 +1,10 @@
-// ConsoleApplication1.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
 #include "pch.h"
 #include <iostream>
 #include <string>
 #include <cstdlib>
 #include <ctime>
 #include <windows.h>
+#include <vector>
 
 using namespace std;
 
@@ -21,7 +19,7 @@ public:
 		return name;
 	}
 	double measure(void) {
-		return (rand() % 100) + 1;
+		return (rand() % 100) + 1; // Produce a randome measurement 
 	}
 };
 
@@ -32,14 +30,15 @@ public:
 	int number_of_msgs = 0;
 	double all_messages = 0;
 
-	void incrementN(void) {
+	void increment_N(void) {
 		number_of_msgs += 1;
 	}
 	void add_messages(double message){
 		all_messages += message;
 	}
 	double get_average(void) {
-		return all_messages / number_of_msgs;
+		if(number_of_msgs != 0) return all_messages / number_of_msgs;
+		else return 0;
 	}
 
 	string connected_to_what(void) {
@@ -54,77 +53,79 @@ public:
 
 };
 
-void get_sensor_data(double* data, Sensor& sensor, Receiver& receiver, int randomizer) {
-	if (rand() % randomizer == 0) {
+void get_sensor_data(double* data, Sensor& sensor, Receiver& receiver) {
+	string sensor_name = sensor.get_name();
+	if (rand() % 2 == 0) { // Add some randomness factor to data creation
 		*data = sensor.measure();
-	}
-	else data = NULL;
-	if (data != NULL) {
-		cout << "Sensor 1 send: ";
+		cout << sensor_name << " send value: ";
 		cout << *data << endl;
-		receiver.incrementN();
+		receiver.increment_N();
 		receiver.add_messages(*data);
 	}
+	else return;
 }
-
-
 
 int main()
 {
 	srand(time(NULL));
 
+	vector<Sensor> sensors;
+	vector<Receiver> receivers;
+	int number_of_connections;
 
 
-	Sensor sensor1;
-	Sensor sensor2;
-	sensor1.set_name("Sensor 1");
-	sensor2.set_name("Sensor 2");
+	cout << "Please enter number of sensors: " << endl;
+	cin >> number_of_connections;
+	while(number_of_connections > 99) {
+		cout << "Maximum number of sensors is 99. Try again." << endl;
+		cin >> number_of_connections;
+	}
 
-	Receiver receiver1;
-	receiver1.name = "Receiver 1";
-	receiver1.sensor_name = sensor1.get_name();
+	sensors.resize(number_of_connections);
+	receivers.resize(number_of_connections);
+	
+	for (int i = 0; i < number_of_connections; i++)
+	{
+		string sensor_name = "Sensor ";
+		sensor_name += to_string(i);
+		sensors[i].set_name(sensor_name);
+	}
 
-	Receiver receiver2;
-	receiver2.name = "Receiver 2";
-	receiver2.sensor_name = sensor2.get_name();
+	for (int i = 0; i < number_of_connections; i++)
+	{
+		string receiver_name = "Receiver ";
+		receiver_name += to_string(i);
+		receivers[i].set_name(receiver_name);
+		receivers[i].sensor_name = sensors[i].get_name();
+	}
 
 	SHORT key = 0;
 
 	double data = 0;
 	double* pDat = &data;
 	
+	
+	cout << "To start receivng press A. To stop press S" << endl;
+	
+	while (key == 0) key = GetKeyState('A');
+	key = 0;
+
 		while (key == 0) {
-			get_sensor_data(pDat, sensor1, receiver1, 1);
-			get_sensor_data(pDat, sensor2, receiver2, 2);
-
-			key = GetKeyState('A');
-			cout << "Press A to stop reception" << endl;
-		Sleep(10);
-
+			for (int i = 0; i < number_of_connections; i++) {
+				get_sensor_data(pDat, sensors[i], receivers[i]);
+			}
+			key = GetKeyState('S');
+		Sleep(4);
 		}
 
-	cout << "Reception stopped" << endl;
+	cout << "Reception stopped\n\r" << endl;
+	for (int i = 0; i < number_of_connections; i++) {
+		cout << receivers[i].get_name() << " got: " << receivers[i].number_of_msgs << " Messages ";
+		cout << " from " << receivers[i].connected_to_what() << endl;
+		cout << "Average of " << receivers[i].connected_to_what() << " is: " << receivers[i].get_average() << "\n\r" << endl;
 
-	cout << receiver1.get_name() << " got: " << receiver1.number_of_msgs << " Messages ";
-	cout << " from " << receiver1.connected_to_what() << endl;
-	cout << "Average of " << receiver1.connected_to_what() << " is: " << receiver1.get_average() << endl;
-
-	cout << receiver2.get_name() << " got: " << receiver2.number_of_msgs << " Messages ";
-	cout << " from " << receiver2.connected_to_what() << endl;
-	cout << "Average of " << receiver2.connected_to_what() << " is: " << receiver2.get_average() << endl;
-
+	}
 	system("pause");
 	return 0;
 
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
