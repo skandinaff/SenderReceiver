@@ -105,8 +105,7 @@ int main()
 
 	double data = 0;
 	double* pDat = &data;
-	
-	
+		
 	cout << "To start receivng press A. To stop press S" << endl;
 	
 	while (key == 0) key = GetKeyState('A');
